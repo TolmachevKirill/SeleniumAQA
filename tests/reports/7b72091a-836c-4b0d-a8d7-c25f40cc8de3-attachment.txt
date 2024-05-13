@@ -1,0 +1,1 @@
+ERROR    root:base_page.py:89 Timeout while getting text from element with locator: ('css selector', '.balance')

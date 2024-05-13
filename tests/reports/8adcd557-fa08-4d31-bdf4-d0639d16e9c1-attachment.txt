@@ -1,0 +1,1 @@
+ERROR    root:base_page.py:39 Timeout while clicking element with locator: ('css selector', "option[label='Harry Potter']")

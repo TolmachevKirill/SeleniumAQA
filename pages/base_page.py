@@ -85,3 +85,16 @@ class BasePage:
         except TimeoutException:
             logging.error(f"Timeout while getting text from element with locator: {locator}")
             raise
+
+    def wait_for_element(self, locator, timeout=10):
+        """
+        Ожидает, пока элемент не станет видимым на странице.
+
+        :param locator: Локатор элемента, который ожидаем.
+        :param timeout: Время ожидания до возникновения TimeoutException.
+        :return: Найденный элемент.
+        """
+        return WebDriverWait(self.driver, timeout).until(
+            EC.visibility_of_element_located(locator),
+            message=f"Element with locator {locator} not visible"
+        )

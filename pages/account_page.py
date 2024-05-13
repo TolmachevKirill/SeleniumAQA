@@ -5,6 +5,7 @@ from .base_page import BasePage
 import time
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 
 class AccountPage(BasePage):
     def __init__(self, driver):
@@ -13,7 +14,7 @@ class AccountPage(BasePage):
         self.withdrawl_button = (By.CSS_SELECTOR, "button[ng-click='withdrawl()']")
         self.amount_input = (By.CSS_SELECTOR, "input[type='number'][ng-model='amount']")
         self.submit_button = (By.CSS_SELECTOR, "button[type='submit']")
-        self.balance_label = (By.CSS_SELECTOR, ".balance")
+
         self.transactions_button = (By.CSS_SELECTOR, "button[ng-click='transactions()']")
 
     def perform_transaction(self, button_locator, amount):
@@ -62,10 +63,26 @@ class AccountPage(BasePage):
         """
         Получает текущий баланс счета пользователя.
         """
-        return self.get_element_text(self.balance_label)
+        # Использование точного XPath для выбора элемента баланса
+        balance_xpath = "//div[contains(text(), 'Account Number')]/strong[2]"
+        try:
+            balance_element = WebDriverWait(self.driver, 10).until(
+                EC.visibility_of_element_located((By.XPATH, balance_xpath)),
+                message="Balance element is not visible"
+            )
+            return balance_element.text.strip()
+        except TimeoutException as e:
+            print(f"Failed to find the balance element on the page. Error: {e}")
+            return None  # или обработать ошибку иначе
 
     def open_transactions_page(self):
         """
         Переходит на страницу транзакций счета.
         """
+        # Явное ожидание доступности кнопки транзакций перед кликом
+        WebDriverWait(self.driver, self.timeout).until(
+            EC.element_to_be_clickable(self.transactions_button),
+            message="Transactions button not clickable"
+        )
         self.click_element(self.transactions_button)
+
